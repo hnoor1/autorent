@@ -1,63 +1,66 @@
-<?php 
-    session_start();
-    include('../config.php');
+<?php
+session_start();
+include('../config.php');
+
+$msg = "";
+
+if (!empty($_POST)) {
+    $uname = $_POST['user'];
+    $password = $_POST['password'];
+
+    $paring = "SELECT id, email, password_hash, role FROM users WHERE email = ?";
+    $stmt = mysqli_prepare($yhendus, $paring);
+    mysqli_stmt_bind_param($stmt, "s", $uname);
+    mysqli_stmt_execute($stmt);
+    $tulemus = mysqli_stmt_get_result($stmt);
+    $rida = mysqli_fetch_assoc($tulemus);
+
+    if (!empty($rida) && password_verify($password, $rida['password_hash']) && $rida['role'] === 'admin') {
+        $_SESSION['tuvastamine'] = true;
+        $_SESSION['user_id'] = $rida['id'];
+        $_SESSION['email'] = $rida['email'];
+        $_SESSION['role'] = $rida['role'];
+
+        header("Location: index.php");
+        exit();
+    } else {
+        $msg = "Kasutajat ei tuvastatud või puudub admini õigus!";
+    }
+}
 ?>
 <!doctype html>
-<html lang="en">
-  <head>
+<html lang="et">
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  </head>
-  <body>
-<?php
-    $msg = "";
+    <title>Administraatori vaade</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="row pt-4 mt-4">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-4">
+            <h2>Administraatori vaade</h2>
 
-    if (!empty($_POST)) {
-       //kasutaja vormist
-        $uname = $_POST ['user'];
-        $password = $_POST['password'];
+            <form method="post" action="login.php" autocomplete="off">
+                <div class="mb-3">
+                    <label for="u" class="form-label">E-posti aadress</label>
+                    <input name="user" type="email" class="form-control" id="u" required>
+                </div>
 
-        //kasutaja adnmebaasist
-        $paring ="SELECT user, password FROM users WHERE user='".$uname."'";
-        $valjund = mysqli_query($yhendus, $paring);
-        $rida = mysqli_fetch_assoc($valjund);
-        
-        if (!empty($rida)) {
-            $hash = $rida['password'];
-            if ($uname==$rida['user'] && password_verify($password, $hash)) {
-                $_SESSION['tuvastamine'] = 'misiganes';
-                header("Location: index.php");
-            }else{
-                $msg = "Kasutajat ei tuvastatud!";
-            }
-        }
-    }
-?>
+                <div class="mb-3">
+                    <label for="p" class="form-label">Parool</label>
+                    <input name="password" type="password" class="form-control" id="p" required>
+                </div>
 
-    <div class="container">
-        <div class="row pt-4 mt-4">
-            <div class="col-sm-4"></div>
-            <div class="col-sm-4">
-                <form method="post" action="login.php" autocomplete="off">
-                    <div class="mb-3">
-                        <label for="u" class="form-label">Username</label>
-                        <input name="user" type="text" class="form-control" id="u">
-                    </div>
-                    <div class="mb-3">
-                        <label for="p" class="form-label">Password</label>
-                        <input name="password" type="password" class="form-control" id="p">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-                <?php echo $msg; ?>
-            </div>
-            <div class="col-sm-4"></div>
+                <button type="submit" class="btn btn-primary">Logi sisse</button>
+            </form>
+
+            <p class="text-danger mt-3"><?php echo $msg; ?></p>
         </div>
+        <div class="col-sm-4"></div>
     </div>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  </body>
+</div>
+</body>
 </html>
