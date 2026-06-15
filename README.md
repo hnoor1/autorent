@@ -2,6 +2,14 @@
 
 Tegemist on veebilehega, mille abil saab autosid rentida. 
 
+**Projekti ülevaade**
+
+- Klooni projekt, palun kloonida seda konkreetset too4-docker-rent branchi!
+- Käivita docker kasutades käsku docker compose up -d --build
+- Veebileht avaneb:
+     - http://localhost:8080/
+     - http://localhost:8081/
+
 **Veebilehe funktsioonid**
 
 Kasutaja
@@ -55,10 +63,4 @@ Turvalisus
 ![screenshot](https://github.com/hnoor1/autorent/blob/too4-docker-rent/pildid/peab%20sisselogima.jpg)
 
 
-Projekti ülevaade
 
-- Klooni projekt.
-- Käivita docker kasutades käsku docker compose up -d --build
-- Veebileht avaneb:
-     - http://localhost:8080/
-     - http://localhost:8081/
