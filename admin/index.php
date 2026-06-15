@@ -12,7 +12,12 @@ if (!isset($_SESSION['tuvastamine'])) {
 <!-- sisu -->
 <div class="container">
     <h2>Adminni ala</h2>
-    <a href="lisa.php" class="btn btn-success">+ Lisa auto</a>
+
+    <div class="mb-3">
+        <a href="lisa.php" class="btn btn-success">+ Lisa auto</a>
+        <a href="reservations.php" class="btn btn-primary">Broneeringud</a>
+    </div>
+
     <div class="row row-cols-1 row-cols-md-4 g-4">
 <!-- üks auto -->
 <?php
