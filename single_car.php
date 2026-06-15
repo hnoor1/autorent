@@ -32,8 +32,9 @@ if (!empty($_POST)) {
     $end_date = $_POST['end_date'];
     $user_id = $_SESSION['user_id'];
 
-    if ($start_date == "" || $end_date == "") {
-        $msg = "Palun vali algus- ja lõppkuupäev.";
+    if ($rida['status'] != 'vaba') {
+    	$msg = "Seda autot ei saa hetkel rentida.";
+    } elseif ($start_date == "" || $end_date == "") {
     } elseif ($end_date < $start_date) {
         $msg = "Lõppkuupäev ei saa olla enne alguskuupäeva.";
     } else {
