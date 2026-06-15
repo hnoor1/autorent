@@ -24,6 +24,8 @@ if (!empty($_POST)) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['role'] = $user['role'];
+	$_SESSION['first_name'] = $user['first_name'];
+	$_SESSION['last_name'] = $user['last_name'];
 
         header("Location: index.php");
         exit();

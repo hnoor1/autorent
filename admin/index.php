@@ -1,95 +1,78 @@
 <?php
 session_start();
-if (!isset($_SESSION['tuvastamine'])) {
-  header('Location: login.php');
-  exit();
-  }
+include('../config.php');
+
+if (empty($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
+
+$paring = "SELECT * FROM cars ORDER BY id DESC";
+$valjund = mysqli_query($yhendus, $paring);
 ?>
 
-<?php include('../config.php'); ?>
-<?php include('../header.php'); ?>
+<?php include('admin_header.php'); ?>
 
-<!-- sisu -->
 <div class="container">
-    <h2>Adminni ala</h2>
 
-    <div class="mb-3">
-        <a href="lisa.php" class="btn btn-success">+ Lisa auto</a>
-        <a href="reservations.php" class="btn btn-primary">Broneeringud</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2>Autod</h2>
+            <p class="text-muted">Halda autorendi autode nimekirja.</p>
+        </div>
+
+        <a href="add_car.php" class="btn btn-dark btn-sm">Lisa auto</a>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-4 g-4">
-<!-- üks auto -->
-<?php
-    // sõnumi kuvamine
-    if(isset($_GET['msg'])){
-      echo '<div class="alert alert-success" role="alert"> Kõik on hästi! </div>';
-    }
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Pilt</th>
+                <th>Auto</th>
+                <th>Mootor</th>
+                <th>Kütus</th>
+                <th>Hind</th>
+                <th>Kirjeldus</th>
+                <th>Tegevused</th>
+            </tr>
+        </thead>
 
+        <tbody>
+        <?php while($rida = mysqli_fetch_assoc($valjund)) { ?>
+            <tr>
+<td>
+    <img src="https://loremflickr.com/150/90/<?= urlencode($rida['mark']); ?>"
+         style="width:150px;height:90px;object-fit:cover;border-radius:4px;">
+</td>
+                <td>
+                    <strong><?= htmlspecialchars($rida['mark']); ?> <?= htmlspecialchars($rida['model']); ?></strong><br>
+                    <small><?= htmlspecialchars($rida['year']); ?></small>
+                </td>
 
-  //autode kuvamine
-    $paring = "SELECT * FROM cars";
-    if (!empty($_GET["otsi"])) {
-        $otsing = $_GET["otsi"];
-        $paring .= " WHERE mark LIKE '%".$otsing."%'";
-    } 
-    $paring .= " LIMIT 8";
-    // var_dump($_GET["otsi"]);
+                <td><?= htmlspecialchars($rida['engine']); ?></td>
+                <td><?= htmlspecialchars($rida['fuel']); ?></td>
+                <td><?= htmlspecialchars($rida['price']); ?> € / päev</td>
 
-    $valjund = mysqli_query($yhendus, $paring); //saadan päringu andmebaasi
+                <td><?= htmlspecialchars($rida['description']); ?></td>
 
-?>
+                <td>
+                    <a href="muuda.php?editid=<?= (int)$rida['id']; ?>" class="btn btn-outline-primary btn-sm">Muuda</a>
+                    <a href="kustuta.php?delid=<?= (int)$rida['id']; ?>" 
+                       class="btn btn-outline-danger btn-sm"
+                       onclick="return confirm('Kas oled kindel, et soovid auto kustutada?');">
+                        Kustuta
+                    </a>
+                </td>
+            </tr>
+        <?php } ?>
+        </tbody>
+    </table>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Mark</th>
-      <th scope="col">Mudel</th>
-      <th scope="col">Hind</th>
-      <th scope="col">Hind</th>
-      <th scope="col">Hind</th>
-      <th scope="col">Hind</th>
-      <th scope="col">Hind</th>
-      <th scope="col">Hind</th>
-      <th scope="col">Hind</th>
-      <th scope="col">Hind</th>
-      <th scope="col">Hind</th>
-      <th scope="col">Kustuta</th>
-      <th scope="col">Muuda</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php
-        while($rida = mysqli_fetch_assoc($valjund)){       //sikutan vastuse alla
-            // var_dump($rida);                       //kuvan testvastuse
-    ?>
-    <tr>
-      <th scope="row"><?php echo $rida["id"]; ?></th>
-      <td><?php echo $rida["mark"]; ?></td>
-      <td><?php echo $rida["model"]; ?></td>
-      <td><?php echo $rida["price"]; ?></td>
-      <td><?php echo $rida["price"]; ?></td>
-      <td><?php echo $rida["price"]; ?></td>
-      <td><?php echo $rida["price"]; ?></td>
-      <td><?php echo $rida["price"]; ?></td>
-      <td><?php echo $rida["price"]; ?></td>
-      <td><?php echo $rida["price"]; ?></td>
-      <td><?php echo $rida["price"]; ?></td>
-      <td><?php echo $rida["price"]; ?></td>
-      <td><a href="kustuta.php?delid=<?= $rida["id"]; ?>" class="btn btn-danger">Kustuta</a></td>
-      <td><a href="muuda.php?editid=<?= $rida["id"]; ?>" class="btn btn-warning">Muuda</a></td>
-    </tr>
-
-    <?php } ?>
-
-  </tbody>
-</table>
+    <div class="text-end">
+        <a href="add_car.php" class="btn btn-dark btn-sm">Lisa auto</a>
+    </div>
 
 </div>
-<!-- /sisu -->
 
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  </body>
+</body>
 </html>

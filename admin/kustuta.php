@@ -1,16 +1,20 @@
-<?php include('../config.php'); ?>
 <?php
-    if (!empty($_GET['delid'])) {
-        $id = $_GET['delid'];
-        $paring = "DELETE FROM cars WHERE id=$id";
-        $valjund = mysqli_query($yhendus, $paring);
-        if ($valjund) {
-            echo "Kustutatud";
-            header("Location: index.php");
-        } else {
-            echo "Urror";
-        }
-    }
+session_start();
+include('../config.php');
 
-    
-?>
+if (empty($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
+
+if (!empty($_GET['delid'])) {
+    $id = (int)$_GET['delid'];
+
+    $sql = "DELETE FROM cars WHERE id = ?";
+    $stmt = mysqli_prepare($yhendus, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+}
+
+header("Location: index.php?msg=deleted");
+exit();

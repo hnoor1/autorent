@@ -77,9 +77,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <?php if (!empty($_SESSION['logged_in'])) { ?>
 
-                <span class="me-3">
-                    <?php echo htmlspecialchars($_SESSION['email']); ?>
-                </span>
+		<span class="me-3">
+		    Tere,
+		    <?php echo htmlspecialchars($_SESSION['first_name']); ?>
+		    <?php echo htmlspecialchars($_SESSION['last_name']); ?>!
+		</span>
 
                 <a href="/logout.php" class="btn btn-danger">
                     Logi välja

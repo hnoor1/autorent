@@ -106,39 +106,53 @@ if (!empty($_POST)) {
 
             <h3>Rendi auto</h3>
 
-            <?php if (empty($_SESSION['logged_in'])) { ?>
+<?php if (empty($_SESSION['logged_in'])) { ?>
 
-                <div class="alert alert-warning">
-                    Rentimiseks pead olema sisse logitud.
-                    <a href="login.php">Logi sisse</a> või
-                    <a href="register.php">registreeri</a>.
-                </div>
+    <div class="alert alert-warning">
+        Rentimiseks pead olema sisse logitud.
+        <a href="login.php">Logi sisse</a> või
+        <a href="register.php">registreeri</a>.
+    </div>
 
-            <?php } else { ?>
+<?php } elseif ($rida['status'] == 'hoolduses') { ?>
 
-                <form method="post">
-                    <div class="mb-3">
-                        <label class="form-label">Alguskuupäev</label>
-                        <input type="date" name="start_date" class="form-control" required>
-                    </div>
+    <div class="alert alert-warning">
+        Auto on hetkel hoolduses ja seda ei saa rentida.
+    </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Lõppkuupäev</label>
-                        <input type="date" name="end_date" class="form-control" required>
-                    </div>
+<?php } elseif ($rida['status'] == 'renditud') { ?>
 
-                    <button class="btn btn-dark w-100">
-                        Kinnita broneering
-                    </button>
-                </form>
+    <div class="alert alert-danger">
+        Auto on hetkel välja renditud.
+    </div>
 
-            <?php } ?>
+<?php } else { ?>
+
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">Alguskuupäev</label>
+            <input type="date" name="start_date" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Lõppkuupäev</label>
+            <input type="date" name="end_date" class="form-control" required>
+        </div>
+
+        <button class="btn btn-dark w-100">
+            Kinnita broneering
+        </button>
+    </form>
+
+<?php } ?>
         </div>
 
         <div class="col-md-6">
-            <img src="<?php echo htmlspecialchars($rida["image"]); ?>"
-                 class="img-fluid"
-                 alt="<?php echo htmlspecialchars($rida["mark"]); ?>">
+            <img
+		src="https://loremflickr.com/500/300/<?= urlencode($rida['mark']); ?>"
+    		class="img-fluid rounded shadow-sm"
+    		style="width:100%;max-height:300px;object-fit:cover;"
+    		alt="<?= htmlspecialchars($rida['mark']); ?>">
         </div>
     </div>
 </div>

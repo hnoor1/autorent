@@ -9,6 +9,26 @@ if (empty($_SESSION['logged_in'])) {
 
 $user_id = $_SESSION['user_id'];
 
+/* Kasutaja saab enda broneeringu tühistada */
+if (!empty($_GET['cancel'])) {
+    $reservation_id = (int)$_GET['cancel'];
+
+    $sql = "
+        UPDATE reservations
+        SET status = 'cancelled'
+        WHERE id = ?
+        AND user_id = ?
+        AND status IN ('pending', 'confirmed')
+    ";
+
+    $stmt = mysqli_prepare($yhendus, $sql);
+    mysqli_stmt_bind_param($stmt, "ii", $reservation_id, $user_id);
+    mysqli_stmt_execute($stmt);
+
+    header("Location: my_reservations.php");
+    exit();
+}
+
 $sql = "
 SELECT 
     reservations.id,
@@ -35,7 +55,7 @@ $result = mysqli_stmt_get_result($stmt);
 <div class="container">
     <h2>Minu broneeringud</h2>
 
-    <table class="table table-striped mt-4">
+    <table class="table table-striped table-hover align-middle mt-4">
         <thead>
             <tr>
                 <th>Auto</th>
@@ -43,6 +63,7 @@ $result = mysqli_stmt_get_result($stmt);
                 <th>Lõpp</th>
                 <th>Hind</th>
                 <th>Staatus</th>
+                <th>Tegevus</th>
             </tr>
         </thead>
 
@@ -50,12 +71,49 @@ $result = mysqli_stmt_get_result($stmt);
         <?php while($rida = mysqli_fetch_assoc($result)) { ?>
             <tr>
                 <td>
-                    <?php echo htmlspecialchars($rida['mark'] . ' ' . $rida['model']); ?>
+                    <?= htmlspecialchars($rida['mark'] . ' ' . $rida['model']); ?>
                 </td>
-                <td><?php echo htmlspecialchars($rida['start_date']); ?></td>
-                <td><?php echo htmlspecialchars($rida['end_date']); ?></td>
-                <td><?php echo htmlspecialchars($rida['total_price']); ?> €</td>
-                <td><?php echo htmlspecialchars($rida['status']); ?></td>
+
+                <td>
+                    <?= htmlspecialchars($rida['start_date']); ?>
+                </td>
+
+                <td>
+                    <?= htmlspecialchars($rida['end_date']); ?>
+                </td>
+
+                <td>
+                    <?= htmlspecialchars($rida['total_price']); ?> €
+                </td>
+
+                <td>
+                    <?php
+                    if ($rida['status'] == 'pending') {
+                        echo '<span class="badge bg-warning text-dark">Ootel</span>';
+                    }
+                    elseif ($rida['status'] == 'confirmed') {
+                        echo '<span class="badge bg-success">Kinnitatud</span>';
+                    }
+                    elseif ($rida['status'] == 'cancelled') {
+                        echo '<span class="badge bg-danger">Tühistatud</span>';
+                    }
+                    else {
+                        echo htmlspecialchars($rida['status']);
+                    }
+                    ?>
+                </td>
+
+                <td>
+                    <?php if ($rida['status'] != 'cancelled') { ?>
+                        <a href="my_reservations.php?cancel=<?= (int)$rida['id']; ?>"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Kas oled kindel, et soovid broneeringu tühistada?');">
+                            Tühista
+                        </a>
+                    <?php } else { ?>
+                        <span class="text-muted">Tühistatud</span>
+                    <?php } ?>
+                </td>
             </tr>
         <?php } ?>
         </tbody>

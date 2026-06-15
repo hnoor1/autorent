@@ -11,7 +11,7 @@
         $otsing = $_GET["otsi"];
         $paring .= " WHERE mark LIKE '%".$otsing."%'";
     } 
-    $paring .= " LIMIT 8";
+    $paring .= " LIMIT 16";
     // var_dump($_GET["otsi"]);
 
     $valjund = mysqli_query($yhendus, $paring); //saadan päringu andmebaasi

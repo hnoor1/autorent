@@ -1,119 +1,172 @@
-<?php include('../config.php'); ?>
-<?php include('../header.php'); ?>
-
 <?php
-    // if(!empty($_GET)){
-    //    $mark = $_GET['mark'];
-    //    $model = $_GET['model'];
-    //    $engine = $_GET['engine'];
-    //    $fuel = $_GET['fuel'];
-    //    $price = $_GET['price'];
+session_start();
+include('../config.php');
 
-    //    $year = $_GET['year'];
-    //    $transmission = $_GET['transmission'];
-    //    $seats = $_GET['seats'];
-    //    $description = $_GET['description'];
-    //    $status = $_GET['status'];
+if (empty($_SESSION['logged_in']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
 
+$msg = "";
 
-    //    $sql = "INSERT INTO cars (mark, model, engine, fuel, price, year, transmission, seats, description, status) VALUES ('".$mark."', '".$model."', '".$engine."', '".$fuel."', '".$price."', '".$year."', '".$transmission."', '".$seats."', '".$description."', '".$status."')";
+if (!empty($_POST['updateid'])) {
+    $id = (int)$_POST['updateid'];
 
-    //    $valjund = mysqli_query($yhendus, $sql); 
-    //    $tulemus = mysqli_affected_rows($yhendus);
-    //     if ($tulemus == 1) {
-    //         // header("Location: index.php?msg=lisatud");
-    //     } else {
-    //         echo "Kirjet ei lisatud";
-    //     }
+    $mark = trim($_POST['mark']);
+    $model = trim($_POST['model']);
+    $engine = trim($_POST['engine']);
+    $fuel = trim($_POST['fuel']);
+    $price = (int)$_POST['price'];
+    $year = (int)$_POST['year'];
+    $transmission = trim($_POST['transmission']);
+    $seats = (int)$_POST['seats'];
+    $description = trim($_POST['description']);
+    $status = trim($_POST['status']);
 
+    $sql = "
+        UPDATE cars 
+        SET mark = ?, model = ?, engine = ?, fuel = ?, price = ?, year = ?, 
+            transmission = ?, seats = ?, description = ?, status = ?
+        WHERE id = ?
+    ";
 
-    // }
-   
+    $stmt = mysqli_prepare($yhendus, $sql);
+    mysqli_stmt_bind_param(
+        $stmt,
+        "ssssiisissi",
+        $mark,
+        $model,
+        $engine,
+        $fuel,
+        $price,
+        $year,
+        $transmission,
+        $seats,
+        $description,
+        $status,
+        $id
+    );
 
-    // }
-
-
-    if(isset($_GET["editid"])){
-        $id = $_GET["editid"];
-        $paring = "SELECT * FROM cars WHERE id=$id";
-        $valjund = mysqli_query($yhendus, $paring);
-        $rida = mysqli_fetch_assoc($valjund);
-            // print_r($rida['mark']);
+    if (mysqli_stmt_execute($stmt)) {
+        header("Location: index.php?msg=uuendatud");
+        exit();
+    } else {
+        $msg = "Auto muutmine ebaõnnestus.";
     }
+}
 
-      if(isset($_GET["updateid"])){
-        $id = $_GET["updateid"];
-        $mark = $_GET['mark'];
-        $model = $_GET['model'];
-        $engine = $_GET['engine'];
-        $fuel = $_GET['fuel'];
-        $price = $_GET['price'];
+if (empty($_GET['editid'])) {
+    header("Location: index.php");
+    exit();
+}
 
-        $year = $_GET['year'];
-        $transmission = $_GET['transmission'];
-        $seats = $_GET['seats'];
-        $description = $_GET['description'];
-        $status = $_GET['status'];
+$id = (int)$_GET['editid'];
 
-        $paring = "UPDATE cars SET mark = '".$mark."', model = '".$model."', engine = '".$engine."', fuel = '".$fuel."', price = '".$price."', year = '".$year."', transmission = '".$transmission."', seats = '".$seats."', description = '".$description."', status = '".$status."' WHERE cars.id = ".$id."";
+$sql = "SELECT * FROM cars WHERE id = ?";
+$stmt = mysqli_prepare($yhendus, $sql);
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$rida = mysqli_fetch_assoc($result);
 
-        // print_r($paring);
-
-        $valjund = mysqli_query($yhendus, $paring);
-        $tulemus = mysqli_affected_rows($yhendus);
-        if ($tulemus == 1) {
-            header("Location: index.php?msg=uuendatud");
-        } else {
-            echo "Kirjet ei lisatud";
-        }
-
-
-    }
-
-
-
+if (!$rida) {
+    die("Autot ei leitud.");
+}
 ?>
 
-<!-- sisu -->
-<div class="container">
-    <h2>Auto lisamine</h2>
-    <form action="muuda.php" method="get">
-        <div class="row g-4">
-            <div class="col-sm-6">
-                <input type="hidden" name="updateid" value="<?= $rida['id']; ?>">
+<?php include('admin_header.php'); ?>
 
-                <label for="mark" class="form-label">Mark</label>
-                <input type="text" class="form-control" id="mark" name="mark" value="<?= $rida['mark']; ?>">
-                <label for="model" class="form-label">Model</label>
-                <input type="text" class="form-control" id="model" name="model" value="<?= $rida['model']; ?>">
-                <label for="engine" class="form-label">Mootor</label>
-                <input type="text" class="form-control" id="engine" name="engine" value="<?= $rida['engine']; ?>">
-                <label for="fuel" class="form-label">Kütus</label>
-                <input type="text" class="form-control" id="fuel" name="fuel" value="<?= $rida['fuel']; ?>">
-                <label for="price" class="form-label">Hind</label>
-                <input type="number" class="form-control" id="price" name="price" value="<?= $rida['price']; ?>">
-            </div>
-            <div class="col-sm-6">
-                <label for="year" class="form-label">Aasta</label>
-                <input type="number" class="form-control" id="year" name="year" value="<?= $rida['year']; ?>">
-                <label for="transmission" class="form-label">Käigukast</label>
-                <input type="text" class="form-control" id="transmission" name="transmission" value="<?= $rida['transmission']; ?>">
-                <label for="seats" class="form-label">Istmete arv</label>
-                <input type="number" class="form-control" id="seats" name="seats" value="<?= $rida['seats']; ?>">
-                <label for="description" class="form-label">Muu info</label>
-                <input type="text" class="form-control" id="description" name="description" value="<?= $rida['description']; ?>">
-                <label for="status" class="form-label">Olek</label>
-                <input type="text" class="form-control" id="status" name="status" value="<?= $rida['status']; ?>">
-            </div>
-            <input type="submit" value="Salvesta" class="btn btn-success">
+<div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Muuda autot</h2>
+        <a href="index.php" class="btn btn-outline-secondary">Tagasi</a>
+    </div>
+
+    <?php if ($msg != "") { ?>
+        <div class="alert alert-danger"><?= htmlspecialchars($msg); ?></div>
+    <?php } ?>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form action="muuda.php?editid=<?= (int)$rida['id']; ?>" method="post">
+                <input type="hidden" name="updateid" value="<?= (int)$rida['id']; ?>">
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mark" class="form-label">Mark</label>
+                        <input type="text" class="form-control" id="mark" name="mark"
+                               value="<?= htmlspecialchars($rida['mark']); ?>" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="model" class="form-label">Mudel</label>
+                        <input type="text" class="form-control" id="model" name="model"
+                               value="<?= htmlspecialchars($rida['model']); ?>" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="engine" class="form-label">Mootor</label>
+                        <input type="text" class="form-control" id="engine" name="engine"
+                               value="<?= htmlspecialchars($rida['engine']); ?>">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="fuel" class="form-label">Kütus</label>
+                        <input type="text" class="form-control" id="fuel" name="fuel"
+                               value="<?= htmlspecialchars($rida['fuel']); ?>">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="price" class="form-label">Hind (€ / päev)</label>
+                        <input type="number" class="form-control" id="price" name="price"
+                               value="<?= htmlspecialchars($rida['price']); ?>" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="year" class="form-label">Aasta</label>
+                        <input type="number" class="form-control" id="year" name="year"
+                               value="<?= htmlspecialchars($rida['year']); ?>">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="transmission" class="form-label">Käigukast</label>
+                        <input type="text" class="form-control" id="transmission" name="transmission"
+                               value="<?= htmlspecialchars($rida['transmission']); ?>">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="seats" class="form-label">Istmete arv</label>
+                        <input type="number" class="form-control" id="seats" name="seats"
+                               value="<?= htmlspecialchars($rida['seats']); ?>">
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label for="description" class="form-label">Kirjeldus</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"><?= htmlspecialchars($rida['description']); ?></textarea>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="status" class="form-label">Olek</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="vaba" <?= $rida['status'] == 'vaba' ? 'selected' : ''; ?>>Vaba</option>
+                            <option value="renditud" <?= $rida['status'] == 'renditud' ? 'selected' : ''; ?>>Renditud</option>
+                            <option value="hoolduses" <?= $rida['status'] == 'hoolduses' ? 'selected' : ''; ?>>Hoolduses</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr>
+
+                <button type="submit" class="btn btn-dark">Salvesta</button>
+                <a href="index.php" class="btn btn-outline-secondary">Tühista</a>
+            </form>
+
         </div>
-    </form>
-   
+    </div>
 
 </div>
-<!-- /sisu -->
 
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  </body>
+</body>
 </html>
