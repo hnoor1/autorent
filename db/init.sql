@@ -1117,7 +1117,7 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-(1,'admin','Admin','Kasutaja','admin@autorent.ee','+37255555555','$2y$10$x6T2DAef3QcSzvYQnDYt8e4N3pdHxV1p1o8Jxq7KuUO69gLZ6LtQe','2026-06-14 16:40:09'),
+(1,'admin','Admin','Kasutaja','admin@autorent.ee','+37255555555','$2y$10$NZnGY2z8yfIVtLLelnW1/uqpzpWfazt8OBKoDG/lMQN.lz3htWK4S','2026-06-14 16:40:09'),
 (2,'user','Liina','Nöör','hannaliinanoor@naide.com','+37251234567','test_hash_2','2026-06-14 16:40:09');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
