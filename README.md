@@ -9,7 +9,10 @@ Tegemist on veebilehega, mille abil saab autosid rentida.
 - Veebileht avaneb:
      - http://localhost:8080/
      - http://localhost:8081/
+Admin andmed:
 
+- e-mail admin@autorent.ee
+- parool admin123
 **Veebilehe funktsioonid**
 
 Kasutaja
