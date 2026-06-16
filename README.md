@@ -13,6 +13,8 @@ Admin andmed:
 
 - e-mail admin@autorent.ee
 - parool admin123
+
+
 **Veebilehe funktsioonid**
 
 Kasutaja
